@@ -24,11 +24,11 @@ else
   readonly C_RED='' C_GREEN='' C_YELLOW='' C_BLUE='' C_BOLD='' C_RESET=''
 fi
 
-log_info()  { echo -e "${C_BLUE}[INFO]${C_RESET} $*"; }
-log_ok()    { echo -e "${C_GREEN}[OK]${C_RESET} $*"; }
-log_warn()  { echo -e "${C_YELLOW}[WARN]${C_RESET} $*"; }
+log_info()  { echo -e "${C_BLUE}[INFO]${C_RESET} $*" >&2; }
+log_ok()    { echo -e "${C_GREEN}[OK]${C_RESET} $*" >&2; }
+log_warn()  { echo -e "${C_YELLOW}[WARN]${C_RESET} $*" >&2; }
 log_err()   { echo -e "${C_RED}[ERROR]${C_RESET} $*" >&2; }
-log_step()  { echo -e "\n${C_BOLD}==>${C_RESET} $*"; }
+log_step()  { echo -e "\n${C_BOLD}==>${C_RESET} $*" >&2; }
 
 usage() {
   cat <<EOF
