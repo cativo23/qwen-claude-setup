@@ -1,110 +1,142 @@
-# Qwen-Claude Setup Scripts
+# Qwen-Claude Setup
 
-A collection of scripts to set up Qwen Code + Claude Code integration on various Linux distributions.
+**One-command setup for Qwen Code + Claude Code** on Linux. Configures the Claude Code router to use [Qwen](https://portal.qwen.ai) (OAuth) so you can use Claude Code with Qwen’s API tier.
 
-## Overview
+---
 
-These scripts configure the Claude Code router to use Qwen (via portal.qwen.ai) with OAuth authentication. They support multiple Linux distributions and automate the entire setup process.
+## Table of contents
 
-## Supported Distributions
+- [Features](#features)
+- [Supported distributions](#supported-distributions)
+- [Requirements](#requirements)
+- [Quick start](#quick-start)
+- [Configuration](#configuration)
+- [Documentation](#documentation)
+- [Project structure](#project-structure)
+- [Uninstalling](#uninstalling)
+- [Contributing](#contributing)
+- [License](#license)
 
-- Ubuntu and Ubuntu-based distributions
-- Arch Linux and Arch-based distributions
-- Fedora
-- Debian
+---
 
-## Prerequisites
+## Features
 
-- Bash shell
-- Internet connection
-- Administrative privileges (for package installation)
-- GitHub account for Qwen OAuth setup
+- **Unified installer** — Single entry point; auto-detects your distribution and runs the right setup
+- **Multi-distro** — Ubuntu, Debian, Arch, Fedora (and derivatives)
+- **OAuth integration** — Uses Qwen portal OAuth; free tier: 2,000 requests/day
+- **Router configuration** — Generates Claude Code Router config and env vars
+- **Modular scripts** — Shared logic in `common.sh`, distro-specific steps in `distros/`
+- **Uninstaller** — Clean removal of config and environment changes
 
-## Installation
+---
 
-### Quick Setup
+## Supported distributions
+
+| Distribution | Notes |
+|-------------|--------|
+| **Ubuntu** / Ubuntu-based | Uses NodeSource for Node.js 20+; installs npm packages |
+| **Debian** | Same approach as Ubuntu |
+| **Arch Linux** / Arch-based | Uses AUR (yay/paru); `qwen-code`, `claude-code`, `claude-code-router` |
+| **Fedora** | Uses dnf and Node.js from Fedora repos |
+
+---
+
+## Requirements
+
+- Bash
+- Internet access
+- Sudo (or root) for installing packages
+- A GitHub account (for Qwen OAuth)
+
+---
+
+## Quick start
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/qwen-claude-setup.git
+git clone https://github.com/cativo23/qwen-claude-setup.git
 cd qwen-claude-setup
-
-# Run the unified installer (auto-detects your distribution)
+chmod +x install.sh common.sh distros/*.sh scripts/uninstall.sh
 ./install.sh
 ```
 
+The installer will:
+
+1. Detect your OS and run the matching distro script  
+2. Install Qwen Code, Claude Code, and Claude Code Router (or prompt you to install dependencies)  
+3. Use existing Qwen credentials from `~/.qwen/oauth_creds.json`, or prompt you to run `qwen` and complete `/auth`  
+4. Write `~/.claude-code-router/config.json` and add the needed variables to your shell RC (`~/.bashrc` or `~/.zshrc`)
+
+---
+
 ## Configuration
 
-After installation, you'll need to authenticate with Qwen:
+After installation:
 
-1. If prompted, run `qwen` in your terminal
-2. Type `/auth` to start the authentication process
-3. Complete the OAuth flow in your browser
-4. Type `/exit` when authentication is successful
-
-## Post-Installation Steps
-
-1. Reload your shell configuration:
+1. **Reload your shell**
    ```bash
-   source ~/.bashrc  # or ~/.zshrc if using zsh
+   source ~/.bashrc   # or source ~/.zshrc
    ```
 
-2. Start the Claude Code Router:
+2. **Start the router**
    ```bash
-   ccr start  # or ccr code for all-in-one setup
+   ccr start          # or ccr code for all-in-one
    ```
 
-3. If the router was already running, restart it:
-   ```bash
-   ccr restart
-   ```
+3. **If you had to authenticate:** run `qwen`, then `/auth`, complete the browser flow, then `/exit`. Re-run `./install.sh` if the script had stopped for auth.
 
-4. Open Claude as usual (it will now route through the configured Qwen backend)
+Credentials are stored in `~/.qwen/oauth_creds.json`. The router listens on port **3456** by default.
 
-## Uninstallation
+---
 
-To remove the setup:
+## Documentation
+
+- **[Installation guide](docs/installation.md)** — Step-by-step install and verification  
+- **[Troubleshooting](docs/troubleshooting.md)** — Token issues, permissions, router problems  
+- **[Example config](examples/config.json.example)** — Sample Claude Code Router config  
+
+---
+
+## Project structure
+
+```
+qwen-claude-setup/
+├── install.sh           # Unified installer (run this)
+├── common.sh            # Shared functions and constants
+├── distros/
+│   ├── ubuntu.sh
+│   ├── debian.sh
+│   ├── arch.sh
+│   └── fedora.sh
+├── scripts/
+│   └── uninstall.sh     # Remove config and env changes
+├── docs/
+│   ├── installation.md
+│   └── troubleshooting.md
+├── examples/
+│   └── config.json.example
+└── CHANGELOG.md
+```
+
+---
+
+## Uninstalling
+
+To remove router config, env vars, and related setup:
 
 ```bash
 ./scripts/uninstall.sh
 ```
 
-## Scripts Included
+This does **not** uninstall system/AUR packages (e.g. `qwen-code`, `claude-code`); remove those with your package manager if desired.
 
-- `install.sh` - Unified installer that automatically detects your distribution and runs the appropriate setup from `distros/`
-- `scripts/uninstall.sh` - Cleanup script to remove all configurations
-
-## Troubleshooting
-
-### Token Expiration
-
-If your Qwen token expires, run:
-```bash
-qwen
-/auth
-```
-Then run the setup script again.
-
-### Permission Issues
-
-Make sure the scripts have execute permissions:
-```bash
-chmod +x install.sh common.sh
-chmod +x scripts/uninstall.sh
-chmod +x distros/*.sh
-```
-
-### Router Connection Issues
-
-Verify the router is running:
-```bash
-ccr status
-```
+---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and code style.
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT — see [LICENSE](LICENSE) for details.
