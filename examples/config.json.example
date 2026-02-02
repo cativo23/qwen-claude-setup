@@ -9,7 +9,15 @@
       "name": "qwen",
       "api_base_url": "https://portal.qwen.ai/v1/chat/completions",
       "api_key": "YOUR_OAUTH_TOKEN_WILL_BE_AUTO_INSERTED",
-      "models": ["qwen3-coder-plus"]
+      "models": ["qwen3-coder-plus"],
+      "transformer": {
+        "use": ["qwen-transformer"]
+      }
+    }
+  ],
+  "transformers": [
+    {
+      "path": "${HOME}/.claude-code-router/plugins/qwen-transformer.js"
     }
   ],
   "Router": {
