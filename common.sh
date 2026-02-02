@@ -125,10 +125,21 @@ setup_qwen_credentials() {
 # Generates the Claude Code Router configuration
 generate_router_config() {
   local token_esc="$1"
+  local plugins_dir="${ROUTER_CONFIG_DIR}/plugins"
+  local transformer_src="${SCRIPT_DIR}/plugins/qwen-transformer.js"
+  local transformer_dest="${plugins_dir}/qwen-transformer.js"
 
   log_step "Configuring claude-code-router"
 
-  mkdir -p "$ROUTER_CONFIG_DIR"
+  mkdir -p "$plugins_dir"
+
+  # Copy the Qwen transformer plugin if it exists in the repo
+  if [[ -f "$transformer_src" ]]; then
+    cp "$transformer_src" "$transformer_dest"
+    log_ok "Qwen transformer plugin installed to $transformer_dest"
+  else
+    log_warn "Qwen transformer plugin not found in $transformer_src. Web search might not work as expected."
+  fi
 
   cat > "${ROUTER_CONFIG_DIR}/config.json" <<EOF
 {
@@ -142,7 +153,15 @@ generate_router_config() {
       "name": "qwen",
       "api_base_url": "$QWEN_PORTAL_URL",
       "api_key": "$token_esc",
-      "models": ["qwen3-coder-plus"]
+      "models": ["qwen3-coder-plus"],
+      "transformer": {
+        "use": ["qwen-transformer"]
+      }
+    }
+  ],
+  "transformers": [
+    {
+      "path": "$transformer_dest"
     }
   ],
   "Router": {
