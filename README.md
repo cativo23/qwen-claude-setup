@@ -1,51 +1,47 @@
 # Qwen-Claude Setup
 
-**One-command setup for Qwen Code + Claude Code** on Linux. Configures the Claude Code router to use [Qwen](https://portal.qwen.ai) (OAuth) so you can use Claude Code with Qwen’s API tier.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform: Linux](https://img.shields.io/badge/Platform-Linux-lightgrey.svg)](https://www.linux.org/)
+[![Shell: Bash](https://img.shields.io/badge/Shell-Bash-4EAA25.svg)](https://www.gnu.org/software/bash/)
+[![Distros](https://img.shields.io/badge/Distros-Ubuntu%20%7C%20Debian%20%7C%20Arch%20%7C%20Fedora-orange.svg)](#supported-distributions)
+
+**One command to rule them all** — get [Qwen Code](https://portal.qwen.ai) + Claude Code playing nice on your Linux box. We wire up the Claude Code router to Qwen’s API (OAuth, free tier = 2k requests/day) so you can code without the setup headache.
 
 ---
 
-## Table of contents
+## TL;DR
 
-- [Features](#features)
-- [Supported distributions](#supported-distributions)
-- [Requirements](#requirements)
-- [Quick start](#quick-start)
-- [Configuration](#configuration)
-- [Documentation](#documentation)
-- [Project structure](#project-structure)
-- [Uninstalling](#uninstalling)
-- [Contributing](#contributing)
-- [License](#license)
+Clone → chmod → `./install.sh` → auth with Qwen if asked → `ccr start`. Done.
 
 ---
 
-## Features
+## What’s in the box
 
-- **Unified installer** — Single entry point; auto-detects your distribution and runs the right setup
-- **Multi-distro** — Ubuntu, Debian, Arch, Fedora (and derivatives)
-- **OAuth integration** — Uses Qwen portal OAuth; free tier: 2,000 requests/day
-- **Router configuration** — Generates Claude Code Router config and env vars
-- **Modular scripts** — Shared logic in `common.sh`, distro-specific steps in `distros/`
-- **Uninstaller** — Clean removal of config and environment changes
-
----
-
-## Supported distributions
-
-| Distribution | Notes |
-|-------------|--------|
-| **Ubuntu** / Ubuntu-based | Uses NodeSource for Node.js 20+; installs npm packages |
-| **Debian** | Same approach as Ubuntu |
-| **Arch Linux** / Arch-based | Uses AUR (yay/paru); `qwen-code`, `claude-code`, `claude-code-router` |
-| **Fedora** | Uses dnf and Node.js from Fedora repos |
+- **One installer** — Detects your distro and runs the right setup. No guessing.
+- **Ubuntu, Debian, Arch, Fedora** — (and their derivatives). Your distro’s probably covered.
+- **OAuth** — Uses Qwen’s portal; no API key copy-paste. Free tier: 2,000 req/day.
+- **Router config** — Writes `~/.claude-code-router/config.json` and your shell env so `ccr` just works.
+- **Modular** — Shared stuff in `common.sh`, distro-specific in `distros/`. Easy to hack.
+- **Uninstaller** — `scripts/uninstall.sh` nukes our config. Your system packages stay (remove those yourself if you want).
 
 ---
 
-## Requirements
+## Supported distros
+
+| Distro | How we do it |
+|--------|----------------|
+| **Ubuntu** / *buntu-based | NodeSource for Node 20+, npm for Qwen/Claude/router |
+| **Debian** | Same vibe as Ubuntu |
+| **Arch** / Arch-based | AUR (yay/paru): `qwen-code`, `claude-code`, `claude-code-router` |
+| **Fedora** | dnf + Node from Fedora repos |
+
+---
+
+## You’ll need
 
 - Bash
-- Internet access
-- Sudo (or root) for installing packages
+- Internet
+- `sudo` (or root) for packages
 - A GitHub account (for Qwen OAuth)
 
 ---
@@ -59,18 +55,16 @@ chmod +x install.sh common.sh distros/*.sh scripts/uninstall.sh
 ./install.sh
 ```
 
-The installer will:
+What happens:
 
-1. Detect your OS and run the matching distro script  
-2. Install Qwen Code, Claude Code, and Claude Code Router (or prompt you to install dependencies)  
-3. Use existing Qwen credentials from `~/.qwen/oauth_creds.json`, or prompt you to run `qwen` and complete `/auth`  
-4. Write `~/.claude-code-router/config.json` and add the needed variables to your shell RC (`~/.bashrc` or `~/.zshrc`)
+1. **Detects your OS** and runs the right distro script.
+2. **Installs** Qwen Code, Claude Code, Claude Code Router (or tells you what to install).
+3. **Credentials** — Uses `~/.qwen/oauth_creds.json` if you already have it, otherwise you’ll run `qwen`, `/auth`, finish in the browser, `/exit`, then re-run the installer.
+4. **Config** — Writes router config and appends to `~/.bashrc` or `~/.zshrc`.
 
 ---
 
-## Configuration
-
-After installation:
+## After install
 
 1. **Reload your shell**
    ```bash
@@ -79,36 +73,36 @@ After installation:
 
 2. **Start the router**
    ```bash
-   ccr start          # or ccr code for all-in-one
+   ccr start          # or ccr code for the full experience
    ```
 
-3. **If you had to authenticate:** run `qwen`, then `/auth`, complete the browser flow, then `/exit`. Re-run `./install.sh` if the script had stopped for auth.
+3. **If you had to do auth** — Run `qwen` → `/auth` → browser → `/exit`, then run `./install.sh` again if it bailed.
 
-Credentials are stored in `~/.qwen/oauth_creds.json`. The router listens on port **3456** by default.
-
----
-
-## Documentation
-
-- **[Installation guide](docs/installation.md)** — Step-by-step install and verification  
-- **[Troubleshooting](docs/troubleshooting.md)** — Token issues, permissions, router problems  
-- **[Example config](examples/config.json.example)** — Sample Claude Code Router config  
+Credentials live in `~/.qwen/oauth_creds.json`. Router default port: **3456**.
 
 ---
 
-## Project structure
+## Docs & stuff
+
+- **[Installation guide](docs/installation.md)** — Full walkthrough
+- **[Troubleshooting](docs/troubleshooting.md)** — Token issues, permissions, router drama
+- **[Example config](examples/config.json.example)** — What the router config looks like
+
+---
+
+## Project layout
 
 ```
 qwen-claude-setup/
-├── install.sh           # Unified installer (run this)
-├── common.sh            # Shared functions and constants
+├── install.sh           # The one you run
+├── common.sh            # Shared logic
 ├── distros/
 │   ├── ubuntu.sh
 │   ├── debian.sh
 │   ├── arch.sh
 │   └── fedora.sh
 ├── scripts/
-│   └── uninstall.sh     # Remove config and env changes
+│   └── uninstall.sh     # Nuke our config
 ├── docs/
 │   ├── installation.md
 │   └── troubleshooting.md
@@ -121,22 +115,22 @@ qwen-claude-setup/
 
 ## Uninstalling
 
-To remove router config, env vars, and related setup:
+To remove everything we added (router config, env vars):
 
 ```bash
 ./scripts/uninstall.sh
 ```
 
-This does **not** uninstall system/AUR packages (e.g. `qwen-code`, `claude-code`); remove those with your package manager if desired.
+We don’t touch your system/AUR packages — uninstall `qwen-code`, `claude-code`, etc. with your package manager if you want them gone.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and code style.
+PRs and issues welcome. Check [CONTRIBUTING.md](CONTRIBUTING.md) for the deets.
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT — [LICENSE](LICENSE). Use it, fork it, vibe with it.
