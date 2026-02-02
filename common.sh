@@ -164,7 +164,7 @@ EOF
 setup_environment() {
   log_step "Setting up environment variables in $RC_FILE"
 
-  add_rc_line 'export ANTHROPIC_BASE_URL="http://127.0.0.1:'"$ROUTER_PORT"'/v1"'
+  add_rc_line 'export ANTHROPIC_BASE_URL="http://127.0.0.1:'"$ROUTER_PORT"'"'
   add_rc_line 'export ANTHROPIC_AUTH_TOKEN="dummy-token"'
   add_rc_line 'export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"'
 
