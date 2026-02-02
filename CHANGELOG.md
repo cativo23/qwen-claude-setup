@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2026-02-02
+
+### Added
+- Custom Qwen transformer to support Web Search in `claude` CLI.
+- Automatic deployment of the Qwen transformer plugin during installation.
+- Injected system prompt reminder to improve Qwen's tool usage efficiency.
+
+### Changed
+- Refactored `common.sh` to handle transformer plugin copying and configuration.
+- Unified transformer registration in `config.json`.
+
+## [1.0.2] - 2026-02-02
+
+### Fixed
+- Corrected `ANTHROPIC_BASE_URL` by removing the redundant `/v1` suffix, resolving 404 errors.
+
 ## [1.0.1] - 2026-02-02
 
 ### Removed
