@@ -87,7 +87,13 @@ log_info "Detected distribution: $DISTRO"
 # Define supported distributions and their script paths
 SUPPORTED_DISTROS=("ubuntu" "arch" "fedora" "debian")
 COMMON_SCRIPT="${SCRIPT_DIR}/common.sh"
-DISTRO_SCRIPT="${SCRIPT_DIR}/distros/${DISTRO}.sh"
+
+# Map Debian-based distributions to the same script
+if [[ "$DISTRO" == "ubuntu" || "$DISTRO" == "debian" ]]; then
+  DISTRO_SCRIPT="${SCRIPT_DIR}/distros/debian.sh"
+else
+  DISTRO_SCRIPT="${SCRIPT_DIR}/distros/${DISTRO}.sh"
+fi
 
 # Check if the detected distribution is supported
 if ! [[ " ${SUPPORTED_DISTROS[*]} " =~ " ${DISTRO} " ]]; then

@@ -14,9 +14,9 @@ main_setup() {
   setup_qwen_integration
 }
 
-# Install Debian-specific dependencies
+# Install Debian/Ubuntu-specific dependencies
 install_dependencies() {
-  log_step "Installing Debian dependencies"
+  log_step "Installing ${DISTRO^} dependencies"
 
   # Update package lists
   sudo apt-get update -qq
@@ -48,7 +48,7 @@ install_dependencies() {
   fi
 }
 
-# Install npm packages for Debian
+# Install npm packages for ${DISTRO^}
 install_npm_packages() {
   log_step "Installing npm packages globally"
 
