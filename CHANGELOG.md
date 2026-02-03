@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2026-02-02
+
+### Added
+- Test script to verify GitHub Action release workflow functionality
+- Automated release workflow that extracts version from CHANGELOG.md
+
 ## [1.0.3] - 2026-02-02
 
 ### Added
