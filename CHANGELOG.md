@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.6] - 2026-02-02
+
+### Added
+- CLAUDE.md documentation file with project references and guidelines
+- .gitignore file with proper exclusions including blog folder
+- scripts/test_qwen_tools.sh to test WebSearch vs web_search tools
+
+### Changed
+- Unified Debian and Ubuntu setup process in install.sh
+- Updated transformer plugin handling and configuration
+
 ## [1.0.5] - 2026-02-02
 
 ### Changed
@@ -12,6 +23,8 @@ All notable changes to this project will be documented in this file.
 ## [1.0.4] - 2026-02-02
 
 ### Added
+- .gitignore file with proper exclusions including blog folder
+- scripts/test_qwen_tools.sh to test WebSearch vs web_search tools
 - Test script to verify GitHub Action release workflow functionality
 - Automated release workflow that extracts version from CHANGELOG.md
 
