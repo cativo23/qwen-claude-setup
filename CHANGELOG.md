@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2026-02-02
+
+### Changed
+- Unified Debian and Ubuntu setup process to simplify maintenance
+- Updated install.sh to map both Ubuntu and Debian to the same script
+- Removed redundant ubuntu.sh script
+
 ## [1.0.4] - 2026-02-02
 
 ### Added
