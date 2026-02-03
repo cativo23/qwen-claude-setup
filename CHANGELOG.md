@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.8] - 2026-02-02
+
+### Added
+- `CLAUDE.md` documentation for project reference and AI-assisted development guidance
+- `QWEN.md` providing architectural context and development patterns for AI models
+- Gitmoji and Semantic Commit guidelines to project documentation
+- Compact Gitflow reference for feature and release management
+
+### Changed
+- Consolidated project documentation for better clarity and maintenance
+- Enhanced `.gitignore` to protect personal configuration files from Claude and Qwen
+
 ## [1.0.7] - 2026-02-02
 
 ### Added
