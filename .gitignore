@@ -51,6 +51,7 @@ Thumbs.db
 
 # Authentication and configuration files
 .qwen/
+.claude/    
 .claude-code-router/
 
 # Local configuration files
