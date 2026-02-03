@@ -1,30 +1,45 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+> Quick reference for Claude Code working with qwen-claude-setup
+
+## Quick Reference
+
+| Action | Command |
+|--------|---------|
+| Install | `./install.sh` |
+| Uninstall | `./scripts/uninstall.sh` |
+| Start router | `ccr start` |
+| Full experience | `ccr code` |
+| Restart router | `ccr restart` |
+| Check usage | `./scripts/check_qwen_usage.sh` |
+| Re-authenticate | `qwen` → `/auth` → browser → `/exit` |
+
+**Router port**: `3456` • **Free tier**: 2,000 requests/day
+
+---
 
 ## Project Overview
 
-This is a Linux shell script-based project that integrates Qwen AI's free-tier API with Claude Code, allowing developers to use Claude's interface with Qwen's backend for free (up to 2,000 requests/day). The project provides a unified installer that works across multiple Linux distributions.
+This is a Linux shell script-based project that integrates Qwen AI's free-tier API with Claude Code. It routes Claude Code through Qwen's API on Linux using OAuth authentication. The transformer plugin (`plugins/qwen-transformer.js`) handles API compatibility (e.g., `WebSearch` ↔ `web_search`).
 
-## Architecture & Key Components
+### Key Components
 
-### Main Scripts
-- `install.sh` - Primary entry point that detects Linux distribution and runs appropriate setup
-- `common.sh` - Shared functions used across all distributions
-- `distros/*.sh` - Distribution-specific installation scripts (debian.sh, arch.sh, fedora.sh)
-- `scripts/uninstall.sh` - Removes all configurations and settings
+| File | Purpose |
+|------|---------|
+| `install.sh` | Unified installer, detects distro |
+| `common.sh` | Shared functions (OAuth, config, utils) |
+| `distros/` | Distribution-specific scripts |
+| `plugins/qwen-transformer.js` | API compatibility transformer |
+| `.claude-code-router/config.json` | Router configuration (generated) |
+| `~/.qwen/oauth_creds.json` | OAuth credentials |
 
-### Core Features
-- **Distribution Detection**: Automatically identifies Linux distribution via `/etc/os-release`
-- **Package Management**: Handles different package managers (apt for Debian/Ubuntu, yay/paru for Arch, dnf for Fedora)
-- **OAuth Integration**: Manages Qwen authentication and token extraction
-- **Router Configuration**: Sets up Claude Code Router with proper Qwen API integration
-- **Environment Setup**: Configures shell environment variables
+### Supported Distros
 
-### Configuration Management
-- Creates `~/.claude-code-router/config.json` with Qwen API settings
-- Sets environment variables (`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`)
-- Handles credential security with proper file permissions (chmod 600)
+Ubuntu, Debian, Arch Linux, Fedora (and their derivatives)
+
+---
+
+## Technical Solutions
 
 ### Special Feature: Transformer Plugin
 The project includes a sophisticated JavaScript transformer (`plugins/qwen-transformer.js`) that solves a critical compatibility issue:
@@ -32,73 +47,91 @@ The project includes a sophisticated JavaScript transformer (`plugins/qwen-trans
 - **Solution**: The transformer acts as middleware to convert between formats in both directions
 - **Additional Feature**: Adds system prompt reminders to help Qwen use its tools effectively
 
-## Development Commands
-
-### Installation
-```bash
-# Clone and run the installer
-git clone https://github.com/cativo23/qwen-claude-setup.git
-cd qwen-claude-setup
-chmod +x install.sh common.sh distros/*.sh scripts/uninstall.sh
-./install.sh
-```
-
-### Post-installation
-```bash
-# Reload your shell
-source ~/.bashrc   # or source ~/.zshrc
-
-# Start the router
-ccr start          # or ccr code for the full experience
-```
-
-### Uninstallation
-```bash
-# Remove all configurations (does not remove system packages)
-./scripts/uninstall.sh
-```
-
-### Testing
-```bash
-# Test the WebSearch tool conversion functionality
-./scripts/test_qwen_tools.sh
-```
-
-## Key Technical Solutions
-
-### Cross-Distribution Support
-The project uses a modular approach where:
-- `install.sh` detects the distribution
-- Distribution-specific scripts handle package installation
-- Common functions in `common.sh` handle authentication, configuration, and setup
-
 ### OAuth Token Management
 - Extracts tokens from `~/.qwen/oauth_creds.json`
 - Handles systems with or without `jq` for JSON parsing
 - Implements proper JSON escaping for security
 
-### Environment Variable Management
-- Adds environment variables to shell configuration files (`.bashrc` or `.zshrc`)
-- Prevents duplicate entries with existence checks
-- Configures Claude to use the local router instead of Anthropic's servers
-
-## Security Considerations
-- Sets restrictive file permissions (600) on credential files
-- Proper JSON escaping to prevent injection attacks
-- Secure storage of OAuth tokens
+---
 
 ## Troubleshooting
 
-### Token Issues
-If authentication token expires:
-1. Run `qwen` → `/auth` in browser → `/exit`
-2. Rerun the installer script
+| Issue | Solution |
+|-------|----------|
+| Token expired | Run `qwen` → `/auth`, then `./install.sh` |
+| Web search not working | Ensure `plugins/qwen-transformer.js` is loaded |
+| Router not starting | Check port 3456 availability |
+| Missing credentials | Run `./install.sh` (triggers auth if needed) |
 
-### Port Issues
-- Router default port: 3456
-- Check if port is available: `nc -z localhost 3456`
+---
 
-### Environment Variables
-After installation, ensure your shell environment is properly configured:
-- Verify `ANTHROPIC_BASE_URL` points to `http://127.0.0.1:3456`
-- Verify `ANTHROPIC_AUTH_TOKEN` is set to dummy value
+## Commits & Workflow
+
+### Commit Format
+
+```
+<gitmoji> <type>(scope): <description>
+```
+
+**Gitmoji**: `🐛` fix • `✨` feat • `📝` docs • `🔥` remove • `🔧` config • `🚀` deploy • `⚡` perf
+
+**Types**: `feat` • `fix` • `docs` • `style` • `refactor` • `test` • `chore`
+
+**Breaking changes**: Use `feat!:` or `fix!:`
+
+### GitFlow (Condensed)
+
+1. **Feature**: `develop` → `feature/name` → PR → `develop`
+2. **Release**: `develop` → `release/vX.Y.Z` → update CHANGELOG → PR → `main`
+3. **Post-release**: PR `main` → `develop` to sync
+
+```bash
+# Feature
+git checkout -b feature/name develop
+# ... work ...
+gh pr create --base develop
+
+# Release
+git checkout -b release/vX.Y.Z develop
+# Update CHANGELOG.md
+gh pr create --base main --title "Release vX.Y.Z"
+gh pr merge <pr-number> --admin --merge
+
+# Post-release sync
+gh pr create --base develop --head main --title "Sync main to develop"
+```
+
+---
+
+## Versioning
+
+**SemVer**: `MAJOR.MINOR.PATCH`
+
+- **MAJOR**: Breaking changes
+- **MINOR**: New features (backward-compatible)
+- **PATCH**: Bug fixes, docs
+
+### CHANGELOG.md Format
+
+```markdown
+## [X.Y.Z] - YYYY-MM-DD
+
+### Added
+- New feature
+
+### Fixed
+- Bug fix
+```
+
+Categories: `Added` • `Changed` • `Deprecated` • `Removed` • `Fixed` • `Security`
+
+---
+
+## Automated Releases
+
+GitHub Actions (`.github/workflows/release.yml`) automatically:
+1. Extracts version from `CHANGELOG.md`
+2. Creates git tag `vX.Y.Z`
+3. Generates GitHub release
+
+**Note**: Triggered on push to `main`/`master`
