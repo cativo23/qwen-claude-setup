@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.7] - 2026-02-02
+
+### Added
+- scripts/test_qwen_tools.sh to test WebSearch vs web_search tools
+- .gitignore file with proper exclusions
+
+### Changed
+- General chores and improvements
+
 ## [1.0.6] - 2026-02-02
 
 ### Added
