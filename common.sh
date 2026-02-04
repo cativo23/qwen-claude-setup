@@ -161,6 +161,7 @@ generate_router_config() {
   ],
   "transformers": [
     {
+      "name": "qwen-transformer",
       "path": "$transformer_dest"
     }
   ],
