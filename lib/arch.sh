@@ -15,23 +15,27 @@ main_setup() {
 
 # Check if AUR helper is available
 check_aur_helper() {
-  log_step "Checking AUR helper"
+  log_step "Checking for AUR helper"
 
   if ! command_exists "$AUR_HELPER"; then
-    die "AUR helper '$AUR_HELPER' not found. Install it or set AUR_HELPER (e.g., export AUR_HELPER=paru)."
+    log_err "AUR helper '${C_BOLD}$AUR_HELPER${C_RESET}' not found."
+    echo -e "${C_YELLOW}  Please install 'yay' or 'paru', or set AUR_HELPER env var.${C_RESET}"
+    die "Missing required AUR helper."
   fi
 
-  log_ok "AUR helper: $AUR_HELPER"
+  log_info "Using AUR helper: ${C_GREEN}${C_BOLD}$AUR_HELPER${C_RESET}"
 }
 
 # Install AUR packages for Arch
 install_aur_packages() {
-  log_step "Installing AUR packages (qwen-code, claude-code, claude-code-router)"
+  log_step "Installing AUR packages"
+  echo -e "  Target packages: ${C_CYAN}${AUR_PACKAGES[*]}${C_RESET}"
 
   if "$AUR_HELPER" -S --needed --noconfirm "${AUR_PACKAGES[@]}"; then
-    log_ok "AUR packages installed"
+    log_ok "All AUR packages installed successfully"
   else
-    die "AUR installation failed. Check connectivity and permissions."
+    log_err "Failed to install packages via $AUR_HELPER"
+    die "AUR installation failed. Check internet connection and permissions."
   fi
 }
 
@@ -42,5 +46,6 @@ setup_qwen_integration() {
   generate_router_config "$token_esc"
   setup_environment
   bypass_onboarding
+  restart_router
   show_completion_summary
 }

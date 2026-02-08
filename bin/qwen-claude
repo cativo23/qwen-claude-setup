@@ -1,0 +1,133 @@
+#!/bin/bash
+#
+# qwen-claude — CLI tool for managing Qwen Code + Claude Code setup
+#
+
+set -Eeuo pipefail
+
+# --- Path Resolution ---
+# Resolve the directory where this script is located (symlink aware)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+BIN_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+BASE_DIR="$(dirname "$BIN_DIR")"
+LIB_DIR="$BASE_DIR/lib"
+
+# --- Source Common Logic ---
+if [[ -f "$LIB_DIR/common.sh" ]]; then
+  source "$LIB_DIR/common.sh"
+else
+  echo -e "\033[0;31mError: common.sh not found in $LIB_DIR\033[0m" >&2
+  exit 1
+fi
+
+# --- Helper Functions ---
+
+show_help() {
+  echo -e "${C_CYAN}${C_BOLD}"
+  echo "   ____                         _____ _                 _       "
+  echo "  / __ \                       / ____| |               | |      "
+  echo " | |  | |_      _____ _ __    | |    | | __ _ _   _  __| | ___  "
+  echo " | |  | \ \ /\ / / _ \ '_ \   | |    | |/ _\` | | | |/ _\` |/ _ \ "
+  echo " | |__| |\ V  V /  __/ | | |  | |____| | (_| | |_| | (_| |  __/ "
+  echo "  \____/  \_/\_/ \___|_| |_|   \_____|_|\__,_|\__,_|\__,_|\___| "
+  echo "                                                                "
+  echo "   🚀 Qwen Code + Claude Code CLI (v$SCRIPT_VERSION)"
+  echo -e "${C_RESET}"
+  echo ""
+  echo -e "${C_BOLD}Usage:${C_RESET} qwen-claude <command>"
+  echo ""
+  echo "Commands:"
+  echo -e "  ${C_GREEN}install${C_RESET}    Install dependencies and configure Qwen/Claude integration"
+  echo -e "  ${C_GREEN}refresh${C_RESET}    Refresh Qwen OAuth token and restart router service"
+  echo -e "  ${C_GREEN}uninstall${C_RESET}  Remove configuration files and npm packages"
+  echo -e "  ${C_GREEN}help${C_RESET}       Show this help message"
+  echo ""
+}
+
+cmd_install() {
+  # Call the original installation logic from lib/setup.sh
+  local SETUP_SCRIPT="$LIB_DIR/setup.sh"
+  
+  if [[ ! -f "$SETUP_SCRIPT" ]]; then
+    die "Setup script not found at $SETUP_SCRIPT"
+  fi
+
+  # Execute setup.sh directly to keep its internal logic working
+  # Pass any extra args if needed
+  bash "$SETUP_SCRIPT" "$@"
+}
+
+cmd_refresh() {
+  log_step "Refreshing Qwen Authentication"
+
+  # Force QWEN_API_URL to Portal for refresh/OAuth
+  QWEN_API_URL="$URL_PORTAL"
+
+  local token_esc
+  # setup_qwen_bearer_token handles existing creds check and manual instructions
+  token_esc=$(setup_qwen_bearer_token) || exit 1
+  
+  log_info "Updating Router configuration..."
+  generate_router_config "$token_esc"
+  
+  log_ok "Token refreshed and configuration updated."
+
+  # Restart service
+  restart_router
+}
+
+cmd_uninstall() {
+  log_step "Uninstalling Qwen Code + Claude Code Setup"
+  
+  echo -e "${C_RED}${C_BOLD}WARNING: This will remove configuration files and npm packages.${C_RESET}"
+  echo -ne "Are you sure you want to continue? [y/N]: "
+  read -r confirm
+  if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 0
+  fi
+  
+  # Remove config
+  if [[ -d "$ROUTER_CONFIG_DIR" ]]; then
+    rm -rf "$ROUTER_CONFIG_DIR"
+    log_ok "Removed router config: $ROUTER_CONFIG_DIR"
+  fi
+  
+  if [[ -f "$QWEN_CREDS_PATH" ]]; then
+    rm -f "$QWEN_CREDS_PATH"
+    log_ok "Removed credentials: $QWEN_CREDS_PATH"
+  fi
+  
+  # Uninstall npm packages
+  log_info "Uninstalling npm packages..."
+  npm uninstall -g @qwen-code/qwen-code @anthropic-ai/claude-code @musistudio/claude-code-router || log_warn "Failed to uninstall some npm packages."
+  
+  log_ok "Uninstallation complete."
+}
+
+# --- Main Logic ---
+
+case "${1:-}" in
+  install)
+    shift
+    cmd_install "$@"
+    ;;
+  refresh)
+    cmd_refresh
+    ;;
+  uninstall)
+    cmd_uninstall
+    ;;
+  help|--help|-h)
+    show_help
+    ;;
+  *)
+    show_help
+    exit 1
+    ;;
+esac

@@ -1,124 +1,57 @@
 #!/bin/bash
 #
-# install.sh — Unified Qwen Code + Claude Code setup for multiple distributions
-#
-# Detects the Linux distribution and runs the appropriate setup script.
-# Supported distributions: Ubuntu, Arch, Fedora, Debian.
+# Bootstrapper for qwen-claude CLI
+# Installs the tool to /usr/local/lib/qwen-claude and symlinks the binary.
 #
 
 set -Eeuo pipefail
 
-readonly SCRIPT_NAME="${0##*/}"
-readonly SCRIPT_VERSION="1.0.3"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# --- Colores (solo si la salida es una terminal) ---
+# Colors
 if [[ -t 1 ]]; then
-  readonly C_RED='\033[0;31m'
   readonly C_GREEN='\033[0;32m'
-  readonly C_YELLOW='\033[1;33m'
-  readonly C_BLUE='\033[0;34m'
+  readonly C_RED='\033[0;31m'
   readonly C_BOLD='\033[1m'
   readonly C_RESET='\033[0m'
 else
-  readonly C_RED='' C_GREEN='' C_YELLOW='' C_BLUE='' C_BOLD='' C_RESET=''
+  readonly C_GREEN='' C_RED='' C_BOLD='' C_RESET=''
 fi
 
-log_info()  { echo -e "${C_BLUE}[INFO]${C_RESET} $*" >&2; }
-log_ok()    { echo -e "${C_GREEN}[OK]${C_RESET} $*" >&2; }
-log_warn()  { echo -e "${C_YELLOW}[WARN]${C_RESET} $*" >&2; }
-log_err()   { echo -e "${C_RED}[ERROR]${C_RESET} $*" >&2; }
-log_step()  { echo -e "\n${C_BOLD}==>${C_RESET} $*" >&2; }
+log_info() { echo -e "${C_BOLD}[INFO]${C_RESET} $*"; }
+log_ok()   { echo -e "${C_GREEN}[OK]${C_RESET} $*"; }
+die()      { echo -e "${C_RED}[ERROR]${C_RESET} $*" >&2; exit 1; }
 
-usage() {
-  cat <<EOF
-Usage: $SCRIPT_NAME [OPTION]
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+INSTALL_DIR="/usr/local/lib/qwen-claude"
+BIN_LINK="/usr/local/bin/qwen-claude"
 
-Unified setup script for Qwen Code + Claude Code across multiple Linux distributions.
-
-Options:
-  -h, --help     Show this help and exit
-  -v, --version  Show version and exit
-
-The script automatically detects your Linux distribution and runs the appropriate setup.
-Supported distributions: Ubuntu, Arch, Fedora, Debian.
-
-EOF
-}
-
-print_version() {
-  echo "$SCRIPT_NAME $SCRIPT_VERSION"
-}
-
-die() {
-  log_err "$1"
-  exit "${2:-1}"
-}
-
-# Detect the Linux distribution
-detect_distro() {
-  if [[ -f /etc/os-release ]]; then
-    . /etc/os-release
-    echo "$ID"
-  elif [[ -f /etc/redhat-release ]]; then
-    # Handle older Red Hat based systems
-    if grep -q "Fedora" /etc/redhat-release; then
-      echo "fedora"
-    else
-      echo "rhel"
-    fi
-  else
-    echo "unknown"
-  fi
-}
-
-# --- Check arguments ---
-case "${1:-}" in
-  -h|--help)    usage; exit 0 ;;
-  -v|--version) print_version; exit 0 ;;
-  '')           ;;
-  *)            usage; die "Unrecognized option: $1" ;;
-esac
-
-log_step "Detecting Linux distribution"
-DISTRO=$(detect_distro)
-log_info "Detected distribution: $DISTRO"
-
-# Define supported distributions and their script paths
-SUPPORTED_DISTROS=("ubuntu" "arch" "fedora" "debian")
-COMMON_SCRIPT="${SCRIPT_DIR}/common.sh"
-
-# Map Debian-based distributions to the same script
-if [[ "$DISTRO" == "ubuntu" || "$DISTRO" == "debian" ]]; then
-  DISTRO_SCRIPT="${SCRIPT_DIR}/distros/debian.sh"
-else
-  DISTRO_SCRIPT="${SCRIPT_DIR}/distros/${DISTRO}.sh"
+# Check for sudo
+if [[ $EUID -ne 0 ]]; then
+   log_info "This script requires root privileges to install to /usr/local."
+   log_info "Please run with sudo or as root."
+   exit 1
 fi
 
-# Check if the detected distribution is supported
-if ! [[ " ${SUPPORTED_DISTROS[*]} " =~ " ${DISTRO} " ]]; then
-  die "Unsupported distribution: $DISTRO. Supported: ${SUPPORTED_DISTROS[*]}"
-fi
+log_info "Installing qwen-claude to $INSTALL_DIR..."
 
-# Source the common functions
-if [[ -f "$COMMON_SCRIPT" ]]; then
-  source "$COMMON_SCRIPT"
-else
-  die "Common script not found: $COMMON_SCRIPT"
-fi
+# Create installation directory
+mkdir -p "$INSTALL_DIR"
 
-# Source the distribution-specific script
-if [[ -f "$DISTRO_SCRIPT" ]]; then
-  source "$DISTRO_SCRIPT"
-else
-  die "Distribution script not found: $DISTRO_SCRIPT"
-fi
+# Copy files
+cp -r "$SCRIPT_DIR/bin" "$INSTALL_DIR/"
+cp -r "$SCRIPT_DIR/lib" "$INSTALL_DIR/"
+# Copy LICENSE and README if they exist
+[[ -f "$SCRIPT_DIR/LICENSE" ]] && cp "$SCRIPT_DIR/LICENSE" "$INSTALL_DIR/"
+[[ -f "$SCRIPT_DIR/README.md" ]] && cp "$SCRIPT_DIR/README.md" "$INSTALL_DIR/"
 
-# Run the main setup function from the distribution script
-if declare -f main_setup &>/dev/null; then
-  main_setup
-else
-  die "main_setup function not defined in $DISTRO_SCRIPT"
-fi
+# Set permissions
+chmod +x "$INSTALL_DIR/bin/qwen-claude"
+chmod +x "$INSTALL_DIR/lib/setup.sh" # Ensure original setup script is executable
 
-log_ok "Setup completed successfully for $DISTRO"
+# Create symlink
+log_info "Creating symlink at $BIN_LINK..."
+ln -sf "$INSTALL_DIR/bin/qwen-claude" "$BIN_LINK"
+
+log_ok "Installation successful!"
+echo ""
+echo -e "You can now run setup by typing: ${C_BOLD}qwen-claude install${C_RESET}"
+echo ""

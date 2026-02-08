@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-02-08
+
+### Added
+- New CLI tool `bin/qwen-claude` with install, refresh, and uninstall commands
+- Organized library structure with functions in `lib/` directory
+- Distribution-specific scripts moved from `distros/` to `lib/` for better organization
+- Qwen transformer plugin integrated in `lib/plugins/qwen-transformer.js`
+- New authentication documentation in `docs/AUTHENTICATION.md`
+- Additional test files: `test_api.sh`, `test_auth_methods.sh`, `test_new_api.sh`
+
+### Changed
+- Refactored from monolithic installer to modular CLI-based architecture
+- Consolidated setup logic in `lib/setup.sh`
+- Improved OAuth token management and authentication flow
+- Enhanced error handling and user experience in CLI interface
+- Updated transformer plugin to handle API compatibility between Claude CLI and Qwen models
+
+### Removed
+- Old standalone scripts now replaced by new CLI structure
+- Redundant installation scripts consolidated into unified CLI tool
+
 ## [1.0.8] - 2026-02-02
 
 ### Added
