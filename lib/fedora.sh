@@ -32,16 +32,17 @@ install_dependencies() {
       die "dnf package manager not found. This doesn't appear to be a Fedora system."
     fi
 
-    sudo dnf install -y "${DNF_PACKAGES[@]}"
-    log_ok "Node.js installed: $(node -v)"
+    echo -e "  Installing packages: ${C_CYAN}${DNF_PACKAGES[*]}${C_RESET}"
+    sudo dnf install -y "${DNF_PACKAGES[@]}" > /dev/null
+    log_ok "Node.js installed: ${C_GREEN}$(node -v)${C_RESET}"
   else
-    log_ok "Node.js $(node -v)"
+    log_ok "Node.js version satisfied: ${C_GREEN}$(node -v)${C_RESET}"
   fi
 
   # Install jq if needed (likely already installed with dnf packages)
   if ! command_exists jq; then
-    log_info "Installing jq for OAuth credential reading..."
-    sudo dnf install -y jq
+    log_info "Installing ${C_CYAN}jq${C_RESET} for OAuth credential reading..."
+    sudo dnf install -y jq > /dev/null
     log_ok "jq installed"
   else
     log_ok "jq already installed"
@@ -52,20 +53,22 @@ install_dependencies() {
 install_npm_packages() {
   log_step "Installing npm packages globally"
 
-  readonly NPM_PACKAGES=(
+  local NPM_PACKAGES=(
     "@qwen-code/qwen-code@latest"
     "@anthropic-ai/claude-code"
     "@musistudio/claude-code-router"
   )
 
-  local packages_list
-  packages_list="${NPM_PACKAGES[*]}"
-  log_info "Packages: $packages_list"
+  echo -e "  Target packages:"
+  for pkg in "${NPM_PACKAGES[@]}"; do
+    echo -e "    • ${C_CYAN}$pkg${C_RESET}"
+  done
 
   if npm install -g "${NPM_PACKAGES[@]}"; then
-    log_ok "npm packages installed"
+    log_ok "All npm packages installed successfully"
   else
-    die "Failed npm installation. Check permissions and connectivity."
+    log_err "Failed npm installation"
+    die "Check permissions and connectivity."
   fi
 }
 
@@ -76,5 +79,6 @@ setup_qwen_integration() {
   generate_router_config "$token_esc"
   setup_environment
   bypass_onboarding
+  restart_router
   show_completion_summary
 }
