@@ -5,24 +5,25 @@
 [![Shell: Bash](https://img.shields.io/badge/Shell-Bash-4EAA25.svg)](https://www.gnu.org/software/bash/)
 [![Distros](https://img.shields.io/badge/Distros-Ubuntu%20%7C%20Debian%20%7C%20Arch%20%7C%20Fedora-orange.svg)](#supported-distributions)
 
-**One command to rule them all** — get [Qwen Code](https://portal.qwen.ai) + Claude Code playing nice on your Linux box. We wire up the Claude Code router to Qwen’s API (OAuth, free tier = 2k requests/day) so you can code without the setup headache.
+**One command to rule them all** — get [Qwen Code](https://dashscope.aliyuncs.com) + Claude Code playing nice on your Linux box. We wire up the Claude Code router to Qwen's API (API key, compatible mode) so you can code without the setup headache.
 
 ---
 
 ## TL;DR
 
-Clone → chmod → `./install.sh` → auth with Qwen if asked → `ccr start`. Done.
+Clone → `sudo ./install.sh` → `qwen-claude install` → Done.
 
 ---
 
-## What’s in the box
+## What's in the box
 
-- **One installer** — Detects your distro and runs the right setup. No guessing.
-- **Ubuntu, Debian, Arch, Fedora** — (and their derivatives). Your distro’s probably covered.
-- **OAuth** — Uses Qwen’s portal; no API key copy-paste. Free tier: 2,000 req/day.
+- **One installer** — `./install.sh` sets up the `qwen-claude` CLI tool globally.
+- **Ubuntu, Debian, Arch, Fedora** — (and their derivatives). Your distro's probably covered.
+- **Dual Authentication** — Choose between API Key (dashscope-intl.aliyuncs.com) or Bearer Token (portal.qwen.ai, recommended). See [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md) for details.
 - **Router config** — Writes `~/.claude-code-router/config.json` and your shell env so `ccr` just works.
-- **Modular** — Shared stuff in `common.sh`, distro-specific in `distros/`. Easy to hack.
-- **Uninstaller** — `scripts/uninstall.sh` nukes our config. Your system packages stay (remove those yourself if you want).
+- **Unified CLI** — Manage everything with `qwen-claude`.
+- **Easy Refresh** — `qwen-claude refresh` handles token updates and service restarts automatically.
+- **Uninstaller** — `qwen-claude uninstall` nukes our config.
 
 ---
 
@@ -51,15 +52,15 @@ Clone → chmod → `./install.sh` → auth with Qwen if asked → `ccr start`. 
 ```bash
 git clone https://github.com/cativo23/qwen-claude-setup.git
 cd qwen-claude-setup
-chmod +x install.sh common.sh distros/*.sh scripts/uninstall.sh
-./install.sh
+sudo ./install.sh
+qwen-claude install
 ```
 
 What happens:
 
 1. **Detects your OS** and runs the right distro script.
 2. **Installs** Qwen Code, Claude Code, Claude Code Router (or tells you what to install).
-3. **Credentials** — Uses `~/.qwen/oauth_creds.json` if you already have it, otherwise you’ll run `qwen`, `/auth`, finish in the browser, `/exit`, then re-run the installer.
+3. **Credentials** — Choose your authentication method (API Key or Bearer Token) and provide credentials.
 4. **Config** — Writes router config and appends to `~/.bashrc` or `~/.zshrc`.
 
 ---
@@ -76,14 +77,13 @@ What happens:
    ccr start          # or ccr code for the full experience
    ```
 
-3. **If you had to do auth** — Run `qwen` → `/auth` → browser → `/exit`, then run `./install.sh` again if it bailed.
-
-Credentials live in `~/.qwen/oauth_creds.json`. Router default port: **3456**.
+Credentials live in `~/.claude-code-router/config.json`. Router default port: **3456**.
 
 ---
 
 ## Docs & stuff
 
+- **[Authentication options](docs/AUTHENTICATION.md)** — API Key vs Bearer Token comparison
 - **[Installation guide](docs/installation.md)** — Full walkthrough
 - **[Troubleshooting](docs/troubleshooting.md)** — Token issues, permissions, router drama
 - **[Example config](examples/config.json.example)** — What the router config looks like
