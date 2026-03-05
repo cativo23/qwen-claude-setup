@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> ⚠️ **This project is archived.** This documentation is kept for reference purposes only.
+
 > Quick reference for Claude Code working with qwen-claude-setup
 
 ## Quick Reference
@@ -135,3 +137,17 @@ GitHub Actions (`.github/workflows/release.yml`) automatically:
 3. Generates GitHub release
 
 **Note**: Triggered on push to `main`/`master`
+
+---
+
+## Token Efficiency & Performance
+
+To save tokens and optimize performance, follow these rules:
+
+1. **Be Concise**: Provide brief explanations. Avoid repeating instructions.
+2. **Limit Git Logs**: When checking history, always use `git log -n 5` or `git log -n 10`. Never read the full history.
+3. **Selective Reading**: Only read the files strictly necessary for the current task.
+4. **Context Management**: If a conversation becomes too long, suggest starting a new one with `claude --new`.
+5. **Batch Edits**: When possible, use `multi_replace_file_content` to make multiple changes in a single tool call.
+6. **Avoid Redundancy**: Do not re-read files you have already seen in the current session unless they have changed.
+7. **Search Smart**: Use `grep_search` or `find_by_name` to locate specific code instead of exploring the directory tree.

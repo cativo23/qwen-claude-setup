@@ -1,11 +1,19 @@
 # Qwen-Claude Setup
 
+> ⚠️ **This project is archived.** A better approach has been found to accomplish the same goal. This repository is kept for reference purposes only and is no longer maintained.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform: Linux](https://img.shields.io/badge/Platform-Linux-lightgrey.svg)](https://www.linux.org/)
 [![Shell: Bash](https://img.shields.io/badge/Shell-Bash-4EAA25.svg)](https://www.gnu.org/software/bash/)
-[![Distros](https://img.shields.io/badge/Distros-Ubuntu%20%7C%20Debian%20%7C%20Arch%20%7C%20Fedora-orange.svg)](#supported-distributions)
+[![Status: Archived](https://img.shields.io/badge/Status-Archived-red.svg)]()
 
 **One command to rule them all** — get [Qwen Code](https://dashscope.aliyuncs.com) + Claude Code playing nice on your Linux box. We wire up the Claude Code router to Qwen's API (API key, compatible mode) so you can code without the setup headache.
+
+---
+
+## ⚠️ Project Status: Archived
+
+This project is no longer maintained. The approach documented here has been superseded by a better solution. The code remains available for historical reference and learning purposes.
 
 ---
 

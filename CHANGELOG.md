@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Archived] - 2026-03-05
+
+### Changed
+- Project archived - a better approach has been found to accomplish the same objective
+- Repository is now maintained in read-only mode for reference purposes
+
+---
+
 ## [1.1.0] - 2026-02-08
 
 ### Added

@@ -1,5 +1,7 @@
 # Contributing to Qwen-Claude Setup Scripts
 
+> ⚠️ **This project is archived.** This repository is no longer maintained and we are not accepting new contributions. The code remains available for reference and learning purposes.
+
 Thank you for your interest in contributing to the Qwen-Claude Setup Scripts project! We welcome contributions from the community to help improve and expand support for more Linux distributions.
 
 ## How to Contribute
